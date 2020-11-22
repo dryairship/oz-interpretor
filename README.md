@@ -2,7 +2,7 @@
 
 ### TODO
  - [x] Q1: Implement Semantic Stack
- - [ ] Q2: Variable creation
+ - [x] Q2: Variable creation
  - [ ] Q3: Variable-to-variable binding
  - [ ] Q4a: Value creation - Number
  - [ ] Q4b: Value creation - Record

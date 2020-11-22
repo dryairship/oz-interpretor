@@ -5,6 +5,7 @@ declare
 % Resets the sate of the interpretor
 %=======================================
 proc {ResetInterpretor}
+    {Browse [resetting interpretor]}
     {ResetSAS}
 end
 
@@ -43,6 +44,9 @@ proc {Interpret AST}
                 of [nop] then
                     {ExecuteNop E}
                     {Interpret T1}
+                [] [var ident(X) S] then NewEnv in
+                    {ExecuteVarIdent X S E NewEnv}
+                    {Interpret statement(s:S e:NewEnv)|T1}
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end
