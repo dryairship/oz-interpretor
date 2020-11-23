@@ -31,7 +31,7 @@ in
    %=================
    fun {SubstituteIdentifiers Exp Env}
       case Exp
-      of H|T then  
+      of H|T then
 	 {SubstituteIdentifiers H Env}|{SubstituteIdentifiers T Env}
       [] ident(X) then {RetrieveFromSAS Env.X}
       else Exp end
@@ -46,7 +46,7 @@ in
       of equivalence(A) then {RetrieveFromSAS A}
       else X end
    end
-   
+
    %=================
    % Main unification procedure.
    % Assumes that identifiers have been substituted away, by calling
