@@ -47,6 +47,9 @@ proc {Interpret AST}
                 [] [var ident(X) S] then NewEnv in
                     {ExecuteVarIdent X S E NewEnv}
                     {Interpret statement(s:S e:NewEnv)|T1}
+                [] [bind ident(X) ident(Y)] then NewEnv in
+                    {ExecuteVarBind ident(X) ident(Y) E NewEnv}
+                    {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end

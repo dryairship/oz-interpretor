@@ -17,7 +17,7 @@ end
 
 declare
 %=======================================
-% Creates a new entry in the SAS and 
+% Creates a new entry in the SAS and
 % returns the created SAS variable.
 %=======================================
 fun {NewSASKey}
@@ -25,3 +25,17 @@ fun {NewSASKey}
    {Dictionary.put SAS @Counter parent(@Counter)}
    @Counter
 end
+
+declare
+fun {RetrieveFromSAS Key}
+   {Dictionary.get SAS Key}
+end
+
+proc {BindRefToKeyInSAS Key OtherKey}
+   {Dictionary.put SAS Key reference(OtherKey)}
+end
+
+proc {BindValueToKeyInSAS Key Value}
+   {Dictionary.put SAS Key Value}
+end
+
