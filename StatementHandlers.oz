@@ -46,10 +46,10 @@ end
 % Parameters:
 % - X,Y : variable identifier
 % - E : environment in which this binding is executed.
-% - NewE : the modified environment
+% - NewE : the environment just for binding.
 %=======================================================
 
-proc {ExecuteVarBind X Y E ?NewE}
+proc {BindVariables X Y E ?NewE}
     NewE = {Dictionary.clone E}
     {Unify X Y NewE}
     {Browse variableBinded(
@@ -59,3 +59,23 @@ proc {ExecuteVarBind X Y E ?NewE}
         newE:{Dictionary.toRecord env NewE}
     )}
 end
+
+%=======================================================
+% Handles the [bind ident(x) literal(y)] statement.
+% Parameters:
+% - X : variable identifier
+% - Val : literal identifier
+% - E : environment in which this binding is executed.
+% - NewE : the modified environment
+%=======================================================
+proc {BindLiteral X Val E ?NewE}
+    NewE = {Dictionary.clone E}
+    {Unify X Val NewE}
+    {Browse variableAssigned(
+        id:X
+        value:Val
+        oldE:{Dictionary.toRecord env E}
+        newE:{Dictionary.toRecord env NewE}
+    )}
+end
+
