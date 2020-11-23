@@ -27,12 +27,24 @@ fun {NewSASKey}
 end
 
 declare
-fun {RetrieveFromSAS Key}
-   {Dictionary.get SAS Key}
+fun {RetrieveFromSAS Key} Value in
+   Value = {Dictionary.get SAS Key}
+   case Value
+   of parent(X) then
+      if X==Key then
+      equivalence(X)
+      else
+      {RetrieveFromSAS X}
+      end
+   else
+      Value
+   end
 end
 
-proc {BindRefToKeyInSAS Key OtherKey}
-   {Dictionary.put SAS Key reference(OtherKey)}
+proc {BindRefToKeyInSAS Key OtherKey} Parent in
+   Parent = {NewSASKey}
+   {Dictionary.put SAS Key parent(Parent)}
+   {Dictionary.put SAS OtherKey parent(Parent)}
 end
 
 proc {BindValueToKeyInSAS Key Value}

@@ -52,11 +52,10 @@ end
 proc {ExecuteVarBind X Y E ?NewE}
     NewE = {Dictionary.clone E}
     {Unify X Y NewE}
-    % {Browse variableCreated(
-    %     id:X
-    %     scope:Y
-    %     oldE:{Dictionary.toRecord env E}
-    %     newE:{Dictionary.toRecord env NewE}
-    % )}
-    {Browse 'Helloabc'}
+    {Browse variableBinded(
+        id1:X
+        id2:Y
+        oldE:{Dictionary.toRecord env E}
+        newE:{Dictionary.toRecord env NewE}
+    )}
 end
