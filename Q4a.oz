@@ -24,3 +24,8 @@ Test5 = [var ident(x) [var ident(y) [[bind ident(x) ident(y)] [bind ident(x) lit
 {ResetInterpretor}
 Test6 = [var ident(x) [var ident(y) [[bind ident(x) ident(y)] [bind ident(x) literal(5)] [bind ident(y) literal(10)]] ]]
 {Interpret {GetAST Test6}}
+
+% This test is supposed to raise an exception.
+{ResetInterpretor}
+Test7 = [var ident(x) [var ident(y) [[bind ident(x) literal(5)] [bind ident(y) literal(10)] [bind ident(x) ident(y)]] ]]
+{Interpret {GetAST Test7}}
