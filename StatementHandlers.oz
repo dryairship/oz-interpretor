@@ -1,4 +1,5 @@
-\insert 'SingleAssignmentStore.oz'
+% \insert 'SingleAssignmentStore.oz'
+\insert 'Unify.oz'
 
 %%=======================================================
 %% This file contains code to execute various statements.
@@ -35,6 +36,25 @@ proc {ExecuteVarIdent X S E ?NewE} SasVariable in
     {Browse variableCreated(
         id:X
         scope:S
+        oldE:{Dictionary.toRecord env E}
+        newE:{Dictionary.toRecord env NewE}
+    )}
+end
+
+%=======================================================
+% Handles the [bind ident(x) ident(y)] statement.
+% Parameters:
+% - X,Y : variable identifier
+% - E : environment in which this binding is executed.
+% - NewE : the modified environment
+%=======================================================
+
+proc {ExecuteVarBind X Y E ?NewE}
+    NewE = {Dictionary.clone E}
+    {Unify X Y NewE}
+    {Browse variableBinded(
+        id1:X
+        id2:Y
         oldE:{Dictionary.toRecord env E}
         newE:{Dictionary.toRecord env NewE}
     )}
