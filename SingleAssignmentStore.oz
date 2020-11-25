@@ -106,11 +106,20 @@ end
 declare
 %=============================================
 % Binds a keys in the SAS to a literal.
-% Assumes that Unify.oz will never call this
-% procedure if the key is already bound to a
-% different value.
+% May raise an error if the keys is already
+% bound to a different literal.
 %=============================================
 proc {BindValueToKeyInSAS Key Value} Root in
+    {Browse [binding Key to Value]}
     Root = {FindRoot Key}
-    {Dictionary.put SAS Root Value}
+    case Root
+    of equivalence(X) then
+        {Dictionary.put SAS X Value}
+    [] literal(X) then
+        if X == Value then skip
+        else raise bindErrorDifferentValues(existingValue:X newValue:Value) end
+        end
+    else
+        raise unhandledBindCase(root: Root) end
+    end
 end
