@@ -11,4 +11,3 @@ Test2 = [var ident(x) [var ident(y) [var ident(z) [[bind ident(x) ident(y)] [bin
 {ResetInterpretor}
 Test3 = [var ident(x) [var ident(y) [var ident(z) [[bind ident(x) ident(y)] [bind ident(x) ident(z)] [bind ident(y) ident(z)]]]]]
 {Interpret {GetAST Test3}}
-
