@@ -16,6 +16,7 @@ declare
 %=======================================================
 proc {ExecuteNop E}
     {Browse nopExecuted({Dictionary.toRecord env E})}
+    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 
@@ -39,6 +40,7 @@ proc {ExecuteVarIdent X S E ?NewE} SasVariable in
         oldE:{Dictionary.toRecord env E}
         newE:{Dictionary.toRecord env NewE}
     )}
+    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 %=======================================================
@@ -49,15 +51,14 @@ end
 % - NewE : the environment just for binding.
 %=======================================================
 
-proc {BindVariables X Y E ?NewE}
-    NewE = {Dictionary.clone E}
-    {Unify X Y NewE}
+proc {BindVariables X Y E}
+    {Unify X Y E}
     {Browse variableBinded(
         id1:X
         id2:Y
-        oldE:{Dictionary.toRecord env E}
-        newE:{Dictionary.toRecord env NewE}
+        env:{Dictionary.toRecord env E}
     )}
+    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 %=======================================================
@@ -68,14 +69,12 @@ end
 % - E : environment in which this binding is executed.
 % - NewE : the modified environment
 %=======================================================
-proc {BindLiteral X Val E ?NewE}
-    NewE = {Dictionary.clone E}
-    {Unify X Val NewE}
+proc {BindLiteral X Val E}
+    {Unify X Val E}
     {Browse variableAssigned(
         id:X
         value:Val
-        oldE:{Dictionary.toRecord env E}
-        newE:{Dictionary.toRecord env NewE}
+        env:{Dictionary.toRecord env E}
     )}
+    {Browse {Dictionary.toRecord sas SAS}}
 end
-

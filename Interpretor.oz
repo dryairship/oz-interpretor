@@ -47,11 +47,11 @@ proc {Interpret AST}
                 [] [var ident(X) S] then NewEnv in
                     {ExecuteVarIdent X S E NewEnv}
                     {Interpret statement(s:S e:NewEnv)|T1}
-                [] [bind ident(X) ident(Y)] then NewEnv in
-                    {BindVariables ident(X) ident(Y) E NewEnv}
+                [] [bind ident(X) ident(Y)] then
+                    {BindVariables ident(X) ident(Y) E}
                     {Interpret T1}
                 [] [bind ident(X) literal(Val)] then NewEnv in
-                    {BindLiteral ident(X) literal(Val) E NewEnv}
+                    {BindLiteral ident(X) literal(Val) E}
                     {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
