@@ -14,7 +14,7 @@
 ## Notes
 
 ### Files
- - `ProcessRecords.oz`, `Unify.oz` and `Dict.oz` are the same as provided by sir.
+ - `ProcessRecords.oz`, `Unify.oz` , `Dict.oz` and `1602914294_hw2_new.pdf` are the same as provided by sir.
  - `Interpretor.oz` contains the code for the main interpretor.
  - `StatementHandlers.oz` contains the code to handle various types of statements. The procedures in this file will be called in `Interpretor.oz`.
  - `Q*.oz` files will contain test cases for the different questions.
