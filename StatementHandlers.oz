@@ -78,3 +78,21 @@ proc {BindLiteral X Val E}
     )}
     {Browse {Dictionary.toRecord sas SAS}}
 end
+
+declare
+%=======================================================
+% Handles the [bind ident(x) literal(y)] statement.
+% Parameters:
+% - X : variable identifier
+% - Val : literal value
+% - E : environment in which this binding is executed.
+%=======================================================
+proc {BindRecord X Val E}
+    {Unify X Val E}
+    {Browse variableAssigned(
+        id:X
+        value:Val
+        env:{Dictionary.toRecord env E}
+    )}
+    {Browse {Dictionary.toRecord sas SAS}}
+end

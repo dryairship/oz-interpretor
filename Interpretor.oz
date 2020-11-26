@@ -33,7 +33,7 @@ proc {Interpret AST}
     case AST
     of nil then skip
     [] statement(s:S e:E)|T1 then
-        %{Browse [current statement is S]}
+        {Browse [current statement is S]}
         if {IsList S} then
             if S == nil then % Current statement is empty
                 {Interpret T1}
@@ -53,6 +53,11 @@ proc {Interpret AST}
                 [] [bind ident(X) literal(Val)] then NewEnv in
                     {BindLiteral ident(X) literal(Val) E}
                     {Interpret T1}
+                [] [bind ident(X) record|L|Pairs] then
+                    {BindRecord ident(X) record|L|Pairs E}
+                    {Interpret T1}
+                % [] [bind ident(X)]
+                
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end
