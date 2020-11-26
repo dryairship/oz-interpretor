@@ -53,10 +53,9 @@ proc {Interpret AST}
                 [] [bind ident(X) literal(Val)] then NewEnv in
                     {BindLiteral ident(X) literal(Val) E}
                     {Interpret T1}
-                [] [bind ident(X) record|L|Pairs|nil] then
-                    {BindRecord ident(X) record|L|Pairs E}
+                [] [bind ident(X) record|L|Features] then
+                    {BindRecord ident(X) record|L|Features E}
                     {Interpret T1}
-                
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end

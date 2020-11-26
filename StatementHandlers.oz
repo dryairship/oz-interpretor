@@ -81,10 +81,10 @@ end
 
 declare
 %=======================================================
-% Handles the [bind ident(x) literal(y)] statement.
+% Handles the [bind ident(x) record] statement.
 % Parameters:
 % - X : variable identifier
-% - Val : literal value
+% - Val : record
 % - E : environment in which this binding is executed.
 %=======================================================
 proc {BindRecord X Val E}
