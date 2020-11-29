@@ -56,6 +56,9 @@ proc {Interpret AST}
                 [] [bind ident(X) record|L|Features] then
                     {BindRecord ident(X) record|L|Features E}
                     {Interpret T1}
+                [] [bind ident(X) [procedure Params Statements]] then
+                    {BindProcedure X [procedure Params Statements] E}
+                    {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end
