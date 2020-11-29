@@ -50,14 +50,14 @@ proc {Interpret AST}
                 [] [bind ident(X) ident(Y)] then
                     {BindVariables ident(X) ident(Y) E}
                     {Interpret T1}
-                [] [bind ident(X) literal(Val)] then NewEnv in
+                [] [bind ident(X) literal(Val)] then
                     {BindLiteral ident(X) literal(Val) E}
                     {Interpret T1}
                 [] [bind ident(X) record|L|Features] then
                     {BindRecord ident(X) record|L|Features E}
                     {Interpret T1}
-                [] [bind ident(X) [procedure Params Statements]] then
-                    {BindProcedure X [procedure Params Statements] E}
+                [] [bind ident(X) procedure|Params|Statements] then
+                    {BindProcedure X Params Statements E}
                     {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
