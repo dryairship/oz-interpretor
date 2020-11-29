@@ -1,4 +1,4 @@
-% \insert 'SingleAssignmentStore.oz'
+\insert 'SingleAssignmentStore.oz'
 \insert 'Unify.oz'
 
 %%=======================================================
@@ -95,4 +95,67 @@ proc {BindRecord X Val E}
         env:{Dictionary.toRecord env E}
     )}
     {Browse {Dictionary.toRecord sas SAS}}
+end
+
+
+declare
+
+proc {BindProcedure X Val E}
+
+    case Val of procedure|Parameters|Statements then
+        local ContextualEnvironment ComputeCE in 
+            fun {ComputeCE Params Statements Environment}
+                local AllVariables FreeVariables GetVariables ValidFreeVariable CE in
+                    
+                    fun {GetVariables Xs}
+                        if Xs == nil then nil
+                        else
+                            case Xs.1 of ident(Y) then Y|{GetVariables Xs.2}
+                            else {GetVariables Xs.2} end 
+                        end
+                    end  
+                
+                    fun {ValidFreeVariable X}
+                        if {Member X Params} then false
+                        else if {Dictionary.member Environment X} then true
+                        else false
+                        end 
+                    end
+                    
+
+                    AllVariables = {GetVariables {Flatten Statements}}
+                    FreeVariables = {Filter AllVariables ValidFreeVariable}
+                    CE = {Dictionary.new}
+                    
+                    proc {AddVarstoCE Vars}
+                    if Vars == nil then skip
+                    else
+                        {Dictionary.put CE Vars.1 {Dictionary.get Environment Vars.1}}
+                        {AddVarstoCE Vars.2}
+                    end
+                    end
+                    
+                    {AddVarstoCE FreeVariables}
+                    
+                    CE
+                
+                end
+            end
+
+
+            ContextualEnvironment = {ComputeCE Parameters Statements E}
+            
+            {BindValueToKeyInSAS X procedure(params:Parameters statements:Statements ce:ContextualEnvironment)}
+            
+            {Browse variableAssigned(
+                id:X
+                value:Val
+                env:{Dictionary.toRecord env E}
+            )}
+
+            {Browse {Dictionary.toRecord sas SAS}}
+
+        end
+
+    else skip end
 end
