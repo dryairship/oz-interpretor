@@ -1,4 +1,3 @@
-\insert 'SingleAssignmentStore.oz'
 \insert 'Unify.oz'
 
 %%=======================================================
@@ -99,63 +98,39 @@ end
 
 
 declare
+%===============================================================
+% Handles the [bind ident(x) [procedure [x1,x2..] s] statement.
+% Parameters:
+% - X : variable identifier
+% - Params : list of parameters of the procedure
+% - Statements : statements in the procedure body
+% - E : environment in which this binding is executed.
+%===============================================================
+proc {BindProcedure X Params Statements E}
+    ExtractVariable
+    IsFreeVariable
+    ComputeClosure
+    Closure
+in
+    fun {ExtractVariable X}
+        case X of ident(Y) then Y else nil end
+    end    
+    fun {IsFreeVariable X}
+        {Not {Member X Params}} andthen {Dictionary.member E X}
+    end    
+    fun {ComputeClosure} AllVariables FreeVariables ClosureList in
+        AllVariables = {Flatten {Map {Flatten Statements} ExtractVariable}}
+        FreeVariables = {Filter AllVariables IsFreeVariable}
+        ClosureList = {Map FreeVariables fun {$ X} X#E.X end}
+        {Record.toDictionary {List.toRecord closure ClosureList}}
+    end
 
-proc {BindProcedure X Val E}
-
-    case Val of procedure|Parameters|Statements then
-        local ContextualEnvironment ComputeCE in 
-            fun {ComputeCE Params Statements Environment}
-                local AllVariables FreeVariables GetVariables ValidFreeVariable CE in
-                    
-                    fun {GetVariables Xs}
-                        if Xs == nil then nil
-                        else
-                            case Xs.1 of ident(Y) then Y|{GetVariables Xs.2}
-                            else {GetVariables Xs.2} end 
-                        end
-                    end  
-                
-                    fun {ValidFreeVariable X}
-                        if {Member X Params} then false
-                        else if {Dictionary.member Environment X} then true
-                        else false
-                        end 
-                    end
-                    
-
-                    AllVariables = {GetVariables {Flatten Statements}}
-                    FreeVariables = {Filter AllVariables ValidFreeVariable}
-                    CE = {Dictionary.new}
-                    
-                    proc {AddVarstoCE Vars}
-                    if Vars == nil then skip
-                    else
-                        {Dictionary.put CE Vars.1 {Dictionary.get Environment Vars.1}}
-                        {AddVarstoCE Vars.2}
-                    end
-                    end
-                    
-                    {AddVarstoCE FreeVariables}
-                    
-                    CE
-                
-                end
-            end
-
-
-            ContextualEnvironment = {ComputeCE Parameters Statements E}
-            
-            {BindValueToKeyInSAS X procedure(params:Parameters statements:Statements ce:ContextualEnvironment)}
-            
-            {Browse variableAssigned(
-                id:X
-                value:Val
-                env:{Dictionary.toRecord env E}
-            )}
-
-            {Browse {Dictionary.toRecord sas SAS}}
-
-        end
-
-    else skip end
+    Closure = {ComputeClosure}
+    {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}    
+    {Browse variableAssigned(
+        id:X
+        value:procedure(params:Params statements:Statements closure:{Dictionary.toRecord cl Closure})
+        env:{Dictionary.toRecord env E}
+    )}
+    {Browse {Dictionary.toRecord sas SAS}}
 end
