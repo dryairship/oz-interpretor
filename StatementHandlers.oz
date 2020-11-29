@@ -7,6 +7,9 @@
 %% - [var ident(x) s]
 %% - [bind ident(x) ident(y)]
 %% - [bind ident(x) literal(y)]
+%% - [bind ident(x) [record literal(a) [[literal(f1) ident(x1)] ...] ]]
+%% - [bind ident(x) [procedure [ident(x1) ...] s]]
+%% - [apply ident(f) ident(x1) indent(x2) ...]
 %%=======================================================
 
 declare
@@ -96,7 +99,6 @@ proc {BindRecord X Val E}
     {Browse {Dictionary.toRecord sas SAS}}
 end
 
-
 declare
 %===============================================================
 % Handles the [bind ident(x) [procedure [x1,x2..] s] statement.
@@ -133,4 +135,45 @@ in
         env:{Dictionary.toRecord env E}
     )}
     {Browse {Dictionary.toRecord sas SAS}}
+end
+
+declare
+%==================================================================
+% Handles the [apply ident(f) ident(x1) ident(x2) ...] statement.
+% Parameters:
+% - F : function identifier
+% - ActualParams : list of actual parameters for the procedure
+% - E : environment in which this binding is executed.
+% - ProcBody : statements in the procedure body
+% - ProcEnv : environment in which procedure body will be executed.
+%==================================================================
+proc {ApplyProcedure F ActualParams E ?ProcBody ?ProcEnv} ZipParams in
+    proc {ZipParams Formal Actual}
+        case Formal#Actual
+        of nil#nil then skip
+        [] nil#(_|_) then raise illegalArity(moreActualParametersSupplied) end
+        [] (_|_)#nil then raise illegalArity(lessActualParametersSupplied) end
+        [] (ident(X)|T1)#(ident(Y)|T2) then
+            {Dictionary.put ProcEnv X E.Y}
+            {ZipParams T1 T2}
+        [] (ident(X)|T1)#(Y|T2) then SasVariable in
+            SasVariable = {NewSASKey}
+            {BindValueToKeyInSAS SasVariable Y}
+            {Dictionary.put ProcEnv X SasVariable}
+            {ZipParams T1 T2}
+        else raise invalidFormalParameters(Formal) end
+        end
+    end
+
+    if {Dictionary.member E F} then
+        case {RetrieveFromSAS E.F}
+        of procedure(closure:Closure params:FormalParams statements:Statements) then
+            ProcBody = Statements
+            ProcEnv = {Dictionary.clone Closure}
+            {ZipParams FormalParams ActualParams}
+        else raise notAProcedure(variable:F value:{RetrieveFromSAS E.F}) end
+        end
+    else
+        raise attemptToApplyUnknownVariable(variable: F) end
+    end
 end

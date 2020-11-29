@@ -33,7 +33,7 @@ proc {Interpret AST}
     case AST
     of nil then skip
     [] statement(s:S e:E)|T1 then
-        {Browse [current statement is S]}
+        {Browse [current statement is S with {Dictionary.toRecord env E}]}
         if {IsList S} then
             if S == nil then % Current statement is empty
                 {Interpret T1}
@@ -59,6 +59,9 @@ proc {Interpret AST}
                 [] [bind ident(X) procedure|Params|Statements] then
                     {BindProcedure X Params Statements E}
                     {Interpret T1}
+                [] apply|ident(F)|Params then ProcBody ProcEnv in
+                    {ApplyProcedure F Params E ProcBody ProcEnv}
+                    {Interpret statement(s:ProcBody e:ProcEnv)|T1}
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end
