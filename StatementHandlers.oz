@@ -116,10 +116,10 @@ proc {BindProcedure X Params Statements E}
 in
     fun {ExtractVariable X}
         case X of ident(Y) then Y else nil end
-    end    
+    end
     fun {IsFreeVariable X}
         {Not {Member X Params}} andthen {Dictionary.member E X}
-    end    
+    end
     fun {ComputeClosure} AllVariables FreeVariables ClosureList in
         AllVariables = {Flatten {Map {Flatten Statements} ExtractVariable}}
         FreeVariables = {Filter AllVariables IsFreeVariable}
@@ -128,13 +128,73 @@ in
     end
 
     Closure = {ComputeClosure}
-    {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}    
+    {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}
     {Browse variableAssigned(
         id:X
         value:procedure(params:Params statements:Statements closure:{Dictionary.toRecord cl Closure})
         env:{Dictionary.toRecord env E}
     )}
     {Browse {Dictionary.toRecord sas SAS}}
+end
+
+declare
+%===============================================================
+% Returns value of X in environment E.
+%===============================================================
+proc {GetValueFromEnvironment X E ?R}
+    R = {RetrieveFromSAS {Dictionary.get E X}}
+end
+
+declare
+fun {GetValueFromFeatures R Feature}
+    case R of nil then nil
+    [] H|T
+    then
+        if H.1 == Feature
+        then
+            H.2
+        else
+            {GetValueFromFeatures T Feature}
+        end
+    end
+end
+
+declare
+%===============================================================
+% Handles the [match ident(x) p s1 s2] statement.
+% Parameters:
+% - X : variable identifier
+% - S1 : statement to execute if pattern matches
+% - S2 : statement to execute if pattern doesnt matches
+% - E : environment in which this binding is executed.
+% case X of p then S1 else S2 end
+%===============================================================
+proc {MatchProcedure Rec Features E ?ProcBody ?ProcEnv} PB PE SasVariable in
+    case Features
+    of nil
+    then
+        ProcEnv = {Dictionary.clone E}
+        ProcBody = nil
+    [] H|T then
+        {MatchProcedure Rec T E PB PE}
+        case H of nil then
+            ProcEnv = PE
+            ProcBody = PB
+        [] [literal(X) literal(Y)] then
+            if {GetValueFromFeatures Rec literal(X)} == [literal(Y)]
+            then
+                ProcBody = PB
+                ProcEnv = PE
+            else
+                raise invalidFeature(Features) end
+            end
+        [] [literal(X) ident(Y)] then
+            ProcEnv = {Dictionary.clone PE}
+            SasVariable = {NewSASKey}
+            {Dictionary.put ProcEnv Y SasVariable}
+            ProcBody = [bind ident(Y) {GetValueFromFeatures Rec literal(X)}.1]|PB
+        end
+    end
 end
 
 declare
