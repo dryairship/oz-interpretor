@@ -52,24 +52,21 @@ declare
 Test2 = [var ident(x)
             [
                 var ident(y)
-	            [
+                [
                     var ident(z)
-	                [
-		                [bind ident(y) 
+                    [
+                        [bind ident(y) 
                             [procedure [ident(w)]
-		                        [
-		                            [bind ident(w) [record literal(person) [[literal(age) ident(x)]] ]]
-		                        ]
+                                [
+                                    [bind ident(w) [record literal(person) [[literal(age) ident(x)]] ]]
+                                ]
                             ]   
-		                ]
+                        ]
 
-		                [bind ident(z)  [record literal(person) [[literal(age) literal(40)]]]]
-		                [bind ident(x) literal(40) ]
-	                ]
-	            ]
-	        ]
-	    ]
+                        [bind ident(z)  [record literal(person) [[literal(age) literal(40)]]]]
+                        [bind ident(x) literal(40) ]
+                    ]
+                ]
+            ]
+        ]
 {Interpret {GetAST Test2}}
-
-
-

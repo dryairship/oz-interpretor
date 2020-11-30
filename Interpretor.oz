@@ -20,7 +20,6 @@ fun {GetAST Statements}
     [statement(s: Statements e:{Dictionary.new})]
 end
 
-
 declare
 %=======================================
 % Interprets and executes the statements
@@ -33,6 +32,7 @@ proc {Interpret AST}
     case AST
     of nil then skip
     [] statement(s:S e:E)|T1 then
+        % Comment out these 3 lines to reduce the spam output
         {Browse _}
         {Browse [current statement is S with {Dictionary.toRecord env E}]}
         {Browse [current sas is {Dictionary.toRecord sas SAS}]}
@@ -67,6 +67,16 @@ proc {Interpret AST}
                 [] apply|ident(F)|Params then ProcBody ProcEnv in
                     {ApplyProcedure F Params E ProcBody ProcEnv}
                     {Interpret statement(s:ProcBody e:ProcEnv)|T1}
+                %% Bonus statements
+                [] [print ident(X)] then
+                    {ExecutePrint X E}
+                    {Interpret T1}
+                [] [multiply ident(A) ident(B) ident(C)] then
+                    {ExecuteMultiply A B C E}
+                    {Interpret T1}
+                [] [pred ident(A) ident(B)] then
+                    {ExecutePred A B E}
+                    {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
                     raise unknownStatement(statement:S environment:E) end

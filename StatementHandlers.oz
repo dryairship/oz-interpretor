@@ -2,15 +2,6 @@
 
 %%=======================================================
 %% This file contains code to execute various statements.
-%% Currently supported statements:
-%% - [nop]
-%% - [var ident(x) s]
-%% - [bind ident(x) ident(y)]
-%% - [bind ident(x) literal(y)]
-%% - [bind ident(x) [record literal(a) [[literal(f1) ident(x1)] ...] ]]
-%% - [bind ident(x) [procedure [ident(x1) ...] s]]
-%% - [match ident(x) [record literal(a) [[literal(a) ident(x)] ...]]]
-%% - [apply ident(f) ident(x1) indent(x2) ...]
 %%=======================================================
 
 declare
@@ -186,7 +177,7 @@ declare
 % Parameters:
 % - F : function identifier
 % - ActualParams : list of actual parameters for the procedure
-% - E : environment in which this binding is executed.
+% - E : environment in which this application is executed.
 % - ProcBody : statements in the procedure body
 % - ProcEnv : environment in which procedure body will be executed.
 %==================================================================
@@ -219,5 +210,46 @@ proc {ApplyProcedure F ActualParams E ?ProcBody ?ProcEnv} ZipParams in
         end
     else
         raise unknownProcedure(procedure: F) end
+    end
+end
+
+%============================== BONUS SECTION ==================================%
+
+declare
+%==================================================================
+% Handles the [print ident(x)] statement.
+% Parameters:
+% - F : variable identifier
+% - E : environment in which this statement is executed
+%==================================================================
+proc {ExecutePrint X E}
+    {Browse [printing {RetrieveFromSAS E.X}]}
+end
+
+declare
+%==================================================================
+% Handles the [multiply ident(x) ident(y) ident(z)] statement.
+% Parameters:
+% - A,B,C : variable identifiers. C will be equal to A*B.
+% - E : environment in which this statement is executed
+%==================================================================
+proc {ExecuteMultiply A B C E}
+    case {RetrieveFromSAS E.A}#{RetrieveFromSAS E.B}
+    of literal(X)#literal(Y) then {BindValueToKeyInSAS E.C literal(X*Y)}
+    else raise cantMultiply(a:{RetrieveFromSAS E.A} b:{RetrieveFromSAS E.B}) end
+    end
+end
+
+declare
+%==================================================================
+% Handles the [pred ident(x) ident(y)] statement.
+% Parameters:
+% - A,B : variable identifiers. B will be equal to A-1.
+% - E : environment in which this statement is executed
+%==================================================================
+proc {ExecutePred A B E}
+    case {RetrieveFromSAS E.A}
+    of literal(X) then {BindValueToKeyInSAS E.B literal(X-1)}
+    else raise cantPred(a:{RetrieveFromSAS E.A}) end
     end
 end
