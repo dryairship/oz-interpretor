@@ -161,38 +161,37 @@ end
 
 declare
 %===============================================================
-% Handles the [match ident(x) p s1 s2] statement.
 % Parameters:
-% - X : variable identifier
-% - S1 : statement to execute if pattern matches
-% - S2 : statement to execute if pattern doesnt matches
-% - E : environment in which this binding is executed.
-% case X of p then S1 else S2 end
+% - MatchBody : statements to be executed for binding in case matching
+% - MatchEnv : environment in which body will be executed.
+% - E : environment in which this case matching is executed.
+% - Rec : Record which is used for matching.
+% - Features : Corresponding variables to match with Record.
 %===============================================================
-proc {MatchProcedure Rec Features E ?ProcBody ?ProcEnv} PB PE SasVariable in
+proc {MatchProcedure Rec Features E ?MatchBody ?MatchEnv} MB ME SasVariable in
     case Features
     of nil
     then
-        ProcEnv = {Dictionary.clone E}
-        ProcBody = nil
+        MatchEnv = {Dictionary.clone E}
+        MatchBody = nil
     [] H|T then
-        {MatchProcedure Rec T E PB PE}
+        {MatchProcedure Rec T E MB ME}
         case H of nil then
-            ProcEnv = PE
-            ProcBody = PB
+            MatchEnv = ME
+            MatchBody = MB
         [] [literal(X) literal(Y)] then
             if {GetValueFromFeatures Rec literal(X)} == [literal(Y)]
             then
-                ProcBody = PB
-                ProcEnv = PE
+                MatchBody = MB
+                MatchEnv = ME
             else
                 raise invalidFeature(Features) end
             end
         [] [literal(X) ident(Y)] then
-            ProcEnv = {Dictionary.clone PE}
+            MatchEnv = {Dictionary.clone ME}
             SasVariable = {NewSASKey}
-            {Dictionary.put ProcEnv Y SasVariable}
-            ProcBody = [bind ident(Y) {GetValueFromFeatures Rec literal(X)}.1]|PB
+            {Dictionary.put MatchEnv Y SasVariable}
+            MatchBody = [bind ident(Y) {GetValueFromFeatures Rec literal(X)}.1]|MB
         end
     end
 end
