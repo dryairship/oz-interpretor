@@ -59,16 +59,9 @@ proc {Interpret AST}
                 [] [bind ident(X) procedure|Params|Statements] then
                     {BindProcedure X Params Statements E}
                     {Interpret T1}
-                [] [match ident(X) record|L|Features S1 S2] then XLabel MatchBody MatchEnv Rec in
-                        {GetValueFromEnvironment X E Rec}
-                        XLabel = Rec.2.1
-                        if XLabel == L
-                        then
-                            {MatchProcedure Rec.2.2.1 Features.1 E MatchBody MatchEnv}
-                            {Interpret statement(s:MatchBody e:MatchEnv)|statement(s:S1 e:MatchEnv)|T1}
-                        else
-                            {Interpret statement(s:S2 e:E)|T1}
-                        end
+                [] [match ident(X) record|L|Features S1 S2] then MatchBody MatchEnv in
+                    {MatchPattern X L Features S1 S2 E MatchBody MatchEnv}
+                    {Interpret statement(s:MatchBody e:MatchEnv)|T1}
                 [] apply|ident(F)|Params then ProcBody ProcEnv in
                     {ApplyProcedure F Params E ProcBody ProcEnv}
                     {Interpret statement(s:ProcBody e:ProcEnv)|T1}

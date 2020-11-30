@@ -9,6 +9,7 @@
 %% - [bind ident(x) literal(y)]
 %% - [bind ident(x) [record literal(a) [[literal(f1) ident(x1)] ...] ]]
 %% - [bind ident(x) [procedure [ident(x1) ...] s]]
+%% - [match ident(x) [record literal(a) [[literal(a) ident(x)] ...]]]
 %% - [apply ident(f) ident(x1) indent(x2) ...]
 %%=======================================================
 
@@ -138,61 +139,57 @@ in
 end
 
 declare
-%===============================================================
-% Returns value of X in environment E.
-%===============================================================
-proc {GetValueFromEnvironment X E ?R}
-    R = {RetrieveFromSAS {Dictionary.get E X}}
-end
-
-declare
-fun {GetValueFromFeatures R Feature}
-    case R of nil then nil
-    [] H|T
-    then
-        if H.1 == Feature
-        then
-            H.2
-        else
-            {GetValueFromFeatures T Feature}
+%==========================================================================================
+% Handles the [match ident(x) [record literal(rec) [[literal(a) ident(x)] ...]]] statement.
+% Parameters:
+% - Rec : Record variable which is being matched.
+% - Name : Name of the record
+% - Features : Corresponding variables to match with Record.
+% - E : environment in which this case matching is executed.
+% - S1 : statements to be executed on a successful match.
+% - S2 : statements to be executed if matching fails.
+% - MatchBody : statements to be executed (S1 or S2) depending on the match.
+% - MatchEnv : environment in which MatchBody will be executed.
+%==========================================================================================
+proc {MatchPattern Rec Name Features S1 S2 E ?MatchBody ?MatchEnv} FailMatch ZipFeatures NewEnv in
+    proc {FailMatch}
+        {Browse [match failed]}
+        MatchEnv = {Dictionary.clone E}
+        MatchBody = S2
+    end
+    fun {ZipFeatures MatchF ActualF}
+        case MatchF#ActualF
+        of nil#nil then true
+        [] nil#(_|_) then false
+        [] (_|_)#nil then false
+        [] (FName#literal(V1) | T1) # (!FName#literal(!V1) | T2) then
+            {ZipFeatures T1 T2}
+        [] (FName#literal(V1) | T1) # (!FName#ident(V2) | T2) then
+            literal(V1) == {RetrieveFromSAS E.V2} andthen {ZipFeatures T1 T2}
+        [] (FName#ident(V1) | T1) # (!FName#V2 | T2) then SasVariable in
+            SasVariable = {NewSASKey}
+            {BindValueToKeyInSAS SasVariable V2}
+            {Dictionary.put NewEnv V1 SasVariable}
+            {ZipFeatures T1 T2}
+        else false
         end
     end
-end
-
-declare
-%===============================================================
-% Parameters:
-% - MatchBody : statements to be executed for binding in case matching
-% - MatchEnv : environment in which body will be executed.
-% - E : environment in which this case matching is executed.
-% - Rec : Record which is used for matching.
-% - Features : Corresponding variables to match with Record.
-%===============================================================
-proc {MatchProcedure Rec Features E ?MatchBody ?MatchEnv} MB ME SasVariable in
-    case Features
-    of nil
-    then
-        MatchEnv = {Dictionary.clone E}
-        MatchBody = nil
-    [] H|T then
-        {MatchProcedure Rec T E MB ME}
-        case H of nil then
-            MatchEnv = ME
-            MatchBody = MB
-        [] [literal(X) literal(Y)] then
-            if {GetValueFromFeatures Rec literal(X)} == [literal(Y)]
-            then
-                MatchBody = MB
-                MatchEnv = ME
-            else
-                raise invalidFeature(Features) end
+    if {Dictionary.member E Rec} then
+        case {RetrieveFromSAS E.Rec}
+        of record|!Name|ActualFeatures then CanonizedMatchFeatures CanonizedActualFeatures in
+            CanonizedMatchFeatures = {Canonize {Map Features.1 fun {$ X} X.1#X.2.1 end}}
+            CanonizedActualFeatures = {Canonize {Map ActualFeatures.1 fun {$ X} X.1#X.2.1 end}}
+            NewEnv = {Dictionary.clone E}
+            if {ZipFeatures CanonizedMatchFeatures CanonizedActualFeatures} then
+                {Browse [match succeeded]}
+                MatchEnv = NewEnv
+                MatchBody = S1
+            else {FailMatch} % Either feature names or values didn't match
             end
-        [] [literal(X) ident(Y)] then
-            MatchEnv = {Dictionary.clone ME}
-            SasVariable = {NewSASKey}
-            {Dictionary.put MatchEnv Y SasVariable}
-            MatchBody = [bind ident(Y) {GetValueFromFeatures Rec literal(X)}.1]|MB
+        else {FailMatch} % Rec is either not a record, or the record name does not match
         end
+    else
+        raise unknownVariable(variable: Rec) end
     end
 end
 
@@ -233,6 +230,6 @@ proc {ApplyProcedure F ActualParams E ?ProcBody ?ProcEnv} ZipParams in
         else raise notAProcedure(variable:F value:{RetrieveFromSAS E.F}) end
         end
     else
-        raise attemptToApplyUnknownVariable(variable: F) end
+        raise unknownProcedure(procedure: F) end
     end
 end
