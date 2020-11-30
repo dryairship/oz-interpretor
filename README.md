@@ -7,7 +7,7 @@
  - [x] Q4a: Value creation - Number
  - [x] Q4b: Value creation - Record
  - [x] Q4c: Value creation - Procedure
- - [ ] Q5: Pattern matching
+ - [x] Q5: Pattern matching
  - [x] Q6: Procedure application
 
 
