@@ -21,7 +21,6 @@ declare
 %=======================================================
 proc {ExecuteNop E}
     {Browse nopExecuted({Dictionary.toRecord env E})}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -37,14 +36,10 @@ proc {ExecuteVarIdent X S E ?NewE} SasVariable in
     NewE = {Dictionary.clone E}
     SasVariable = {NewSASKey}
     {Dictionary.put NewE X SasVariable}
-
     {Browse variableCreated(
         id:X
-        scope:S
-        oldE:{Dictionary.toRecord env E}
         newE:{Dictionary.toRecord env NewE}
     )}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -56,12 +51,10 @@ declare
 %=======================================================
 proc {BindVariables X Y E}
     {Unify X Y E}
-    {Browse variableBinded(
+    {Browse variablesBinded(
         id1:X
         id2:Y
-        env:{Dictionary.toRecord env E}
     )}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -74,12 +67,10 @@ declare
 %=======================================================
 proc {BindLiteral X Val E}
     {Unify X Val E}
-    {Browse variableAssigned(
+    {Browse variableBoundToLiteral(
         id:X
         value:Val
-        env:{Dictionary.toRecord env E}
     )}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -92,12 +83,10 @@ declare
 %=======================================================
 proc {BindRecord X Val E}
     {Unify X Val E}
-    {Browse variableAssigned(
+    {Browse variableBoundToRecord(
         id:X
         value:Val
-        env:{Dictionary.toRecord env E}
     )}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -130,12 +119,10 @@ in
 
     Closure = {ComputeClosure}
     {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}
-    {Browse variableAssigned(
+    {Browse variableBoundToProcedure(
         id:X
-        value:procedure(params:Params statements:Statements closure:{Dictionary.toRecord cl Closure})
-        env:{Dictionary.toRecord env E}
+        closure:{Dictionary.toRecord cl Closure}
     )}
-    {Browse {Dictionary.toRecord sas SAS}}
 end
 
 declare
@@ -227,6 +214,7 @@ proc {ApplyProcedure F ActualParams E ?ProcBody ?ProcEnv} ZipParams in
             ProcBody = Statements
             ProcEnv = {Dictionary.clone Closure}
             {ZipParams FormalParams ActualParams}
+            {Browse [applying procedure F]}
         else raise notAProcedure(variable:F value:{RetrieveFromSAS E.F}) end
         end
     else

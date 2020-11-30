@@ -66,18 +66,8 @@ declare
 %==================================================
 % Returns the value of the Key stored in the SAS.
 %==================================================
-fun {RetrieveFromSAS Key} Value in
-    Value = {Dictionary.get SAS Key}
-    case Value
-    of equivalence(X) then
-        if X == Key then
-            equivalence(X)
-        else
-            {RetrieveFromSAS X}
-        end
-    else
-        Value
-    end
+fun {RetrieveFromSAS Key}
+    {FindRoot Key}
 end
 
 declare

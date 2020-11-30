@@ -33,7 +33,9 @@ proc {Interpret AST}
     case AST
     of nil then skip
     [] statement(s:S e:E)|T1 then
+        {Browse _}
         {Browse [current statement is S with {Dictionary.toRecord env E}]}
+        {Browse [current sas is {Dictionary.toRecord sas SAS}]}
         if {IsList S} then
             if S == nil then % Current statement is empty
                 {Interpret T1}
