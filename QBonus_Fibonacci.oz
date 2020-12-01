@@ -28,7 +28,9 @@ end
 {Fibonacci 9}
 */
 
-%% The above Oz program is translated to AST as below
+%% The above Oz program is translated to AST as below.
+%% Change literal(9) as indicated below to any other literal(X)
+%% value to compute the Xth Fibonacci number.
 
 %% ========================== WARNING ===========================
 %% Please comment out lines 36, 37, and 38 in Interpretor.oz

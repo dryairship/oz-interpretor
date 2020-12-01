@@ -19,26 +19,10 @@ end
 {Factorial num(value:6) 1}
 
 */
-%% Note that the above version of the procedure uses only those
-%% statements that we have covered in the homework, except for
-%% the operators (-) and (*), and the Browse function.
-%% We implemented these using 3 more types of statements:
-%% - [add ident(a) ident(b) ident(c)] : Sets c = a+b
-%% - [multiply ident(a) ident(b) ident(c)] : Sets c = a*b
-%% - [print ident(x)] : Prints the value of x on screen
-
-%% After implementing these 3 statements, we can translate
-%% the above Oz procedure to our AST as shown below.
+%% We can translate the above Oz procedure to an AST as shown below.
 %% The AST below actually calculates and prints the factorial of any number.
 %% Change literal(6) as indicated below to any other literal(X)
 %% value to compute the factorial of X.
-
-%% Why this example?
-%% Because it shows that all the sub questions in the homework
-%% have been correctly implemented.
-%% The AST below demonstrates the binding of variables to
-%% literals, records and procedures. It also demonstrates
-%% nested pattern matching and recursive application of functions.
 
 %% ========================== WARNING ===========================
 %% Please comment out lines 36, 37, and 38 in Interpretor.oz
