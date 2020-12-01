@@ -90,97 +90,74 @@ declare
 % - E : environment in which this binding is executed.
 %===============================================================
 proc {BindProcedure X Params Statements E}
-
-case {RetrieveFromSAS E.X}
-of equivalence(_) then
-    Remove
-    GetClosure
-    FreeVars
-    ClosureList
-    Closure
-in
-    fun {Remove Xs Elem}
-        if Xs == nil then nil
-        elseif Xs.1 == Elem then {Remove Xs.2 Elem}
-        else Xs.1 | {Remove Xs.2 Elem}
+    case {RetrieveFromSAS E.X}
+    of equivalence(_) then
+        Remove
+        GetFreeVars
+        FreeVars
+        ClosureList
+        Closure
+    in
+        fun {Remove Xs Elem}
+            if Xs == nil then nil
+            elseif Xs.1 == Elem then {Remove Xs.2 Elem}
+            else Xs.1 | {Remove Xs.2 Elem}
+            end
         end
-    end
-
-    fun {GetClosure Statements}   
-        case Statements
-        of nop then nil
-        
-        [] var|ident(X)|S then {Remove {GetClosure S} X}
-        
-        [] bind|ident(X)|V|nil then
-            case V
+        fun {GetFreeVars Statements}
+            case Statements
+            of var|ident(X)|S then {Remove {GetFreeVars S} X}
+            [] bind|ident(X)|V|nil then
+                case V
                 of ident(Y) then X | Y | nil
-                
                 [] literal(Y) then X | nil
-                
-                [] record|L|Pairs|nil then
-                    
-                    local RecordVars in
-                        fun{RecordVars Vars}
-                            case Vars
-                            of [literal(X) ident(Y)]|T then Y | {RecordVars T}
-                            of H|T then {RecordVars T} % literal-literal case
-                            [] nil then nil
-                            end
+                [] record|L|Pairs|nil then RecordVars in
+                    fun{RecordVars Vars}
+                        case Vars
+                        of [literal(X) ident(Y)]|T then Y | {RecordVars T}
+                        [] _|T then {RecordVars T} % literal-literal case
+                        else nil
                         end
-                        
-                        X | {RecordVars Pairs}
                     end
-                
+                    X | {RecordVars Pairs}
                 [] procedure|Vars|S|nil then
-                    local FreeVars = {GetClosure S} in
+                    local FreeVars = {GetFreeVars S} in
                         X | {Filter FreeVars (fun {$ X} {Not {Member ident(X) Vars}} end)}
                     end
-                
-                else X|nil 
-            end
-
-        [] match|ident(X)|P|S1|S2|nil then
-            local F1 F2  in
-                F1 = {Filter {GetClosure S1} (fun {$ X} {Not {Member X {GetClosure P}}} end)}
-                F2 = {GetClosure S2}
+                else X|nil
+                end
+            [] match|ident(X)|P|S1|S2|nil then F1 F2 PatternVars in
+                PatternVars = {GetFreeVars P}
+                F1 = {Filter {GetFreeVars S1} (fun {$ X} {Not {Member X PatternVars}} end)}
+                F2 = {GetFreeVars S2}
                 X | {Append F1 F2}
-            end
-        
-        [] apply|ident(F)|Params then
-            local Calc in
+            [] apply|ident(F)|Params then Calc in
                 fun{Calc Params}
                     case Params
                     of ident(H)|T then H|{Calc T}
-                    [] Value|T then {Calc T} % literal case
-                    [] nil then nil
+                    [] _|T then {Calc T} % literal case
+                    else nil
                     end
                 end
                 F | {Calc Params}
-            end   
-        
-        [] S1|S2 then {Append {GetClosure S1} {GetClosure S2}}
-        
-        [] nil then nil
-        
-        end 
+            [] print|ident(X) then X | nil
+            [] multiply|ident(A)|ident(B)|ident(C) then A | B | C | nil
+            [] pred|ident(A)|ident(B) then A | B | nil
+            [] S1|S2 then {Append {GetFreeVars S1} {GetFreeVars S2}}
+            else nil
+            end
+        end
+
+        FreeVars = {Filter {GetFreeVars Statements} (fun {$X} {Not {Member ident(X) Params}} end)}
+        ClosureList = {Map FreeVars fun {$ X} X#E.X end}
+        Closure = {Record.toDictionary {List.toRecord closure ClosureList}}
+        {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}
+        {Browse variableBoundToProcedure(
+            id:X
+            closure:{Dictionary.toRecord cl Closure}
+        )}
+    else raise alreadyAssigned(X) end
     end
-
-    FreeVars = {Filter {GetClosure Statements} (fun {$X} {Not {Member ident(X) Params}} end)}
-    {Browse FreeVars}
-    ClosureList = {Map FreeVars fun {$ X} X#E.X end}
-    Closure = {Record.toDictionary {List.toRecord closure ClosureList}}
-
-
-    {BindValueToKeyInSAS E.X procedure(params:Params statements:Statements closure:Closure)}
-    {Browse variableBoundToProcedure(
-        id:X
-        closure:{Dictionary.toRecord cl Closure}
-    )}
-
-
-else raise alreadyAssigned(X) end
-end
 end
 
 declare
