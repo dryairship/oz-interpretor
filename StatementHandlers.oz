@@ -133,6 +133,7 @@ in
                         fun{RecordVars Vars}
                             case Vars
                             of [literal(X) ident(Y)]|T then Y | {RecordVars T}
+                            of H|T then {RecordVars T} % literal-literal case
                             [] nil then nil
                             end
                         end
@@ -159,9 +160,8 @@ in
             local Calc in
                 fun{Calc Params}
                     case Params
-                    of ident(H)|T then 
-                    H|{Calc T}
-                    [] Value|T then {Calc T}
+                    of ident(H)|T then H|{Calc T}
+                    [] Value|T then {Calc T} % literal case
                     [] nil then nil
                     end
                 end
