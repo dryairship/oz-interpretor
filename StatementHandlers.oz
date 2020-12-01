@@ -95,6 +95,7 @@ proc {BindProcedure X Params Statements E}
         Remove
         GetFreeVars
         FreeVars
+        RecordVars
         ClosureList
         Closure
     in
@@ -104,6 +105,13 @@ proc {BindProcedure X Params Statements E}
             else Xs.1 | {Remove Xs.2 Elem}
             end
         end
+        fun{RecordVars Vars}
+            case Vars
+            of [literal(X) ident(Y)]|T then Y | {RecordVars T}
+            [] _|T then {RecordVars T} % literal-literal case
+            else nil
+            end
+        end
         fun {GetFreeVars Statements}
             case Statements
             of var|ident(X)|S then {Remove {GetFreeVars S} X}
@@ -111,23 +119,15 @@ proc {BindProcedure X Params Statements E}
                 case V
                 of ident(Y) then X | Y | nil
                 [] literal(Y) then X | nil
-                [] record|L|Pairs|nil then RecordVars in
-                    fun{RecordVars Vars}
-                        case Vars
-                        of [literal(X) ident(Y)]|T then Y | {RecordVars T}
-                        [] _|T then {RecordVars T} % literal-literal case
-                        else nil
-                        end
-                    end
-                    X | {RecordVars Pairs}
+                [] record|L|Pairs|nil then X | {RecordVars Pairs}
                 [] procedure|Vars|S|nil then
                     local FreeVars = {GetFreeVars S} in
                         X | {Filter FreeVars (fun {$ X} {Not {Member ident(X) Vars}} end)}
                     end
                 else X|nil
                 end
-            [] match|ident(X)|P|S1|S2|nil then F1 F2 PatternVars in
-                PatternVars = {GetFreeVars P}
+            [] match|ident(X)|(record|_|P|nil)|S1|S2|nil then F1 F2 PatternVars in
+                PatternVars = {RecordVars P}
                 F1 = {Filter {GetFreeVars S1} (fun {$ X} {Not {Member X PatternVars}} end)}
                 F2 = {GetFreeVars S2}
                 X | {Append F1 F2}
@@ -140,9 +140,9 @@ proc {BindProcedure X Params Statements E}
                     end
                 end
                 F | {Calc Params}
-            [] print|ident(X) then X | nil
-            [] multiply|ident(A)|ident(B)|ident(C) then A | B | C | nil
-            [] pred|ident(A)|ident(B) then A | B | nil
+            [] print|ident(X)|nil then X | nil
+            [] multiply|ident(A)|ident(B)|ident(C)|nil then A | B | C | nil
+            [] pred|ident(A)|ident(B)|nil then A | B | nil
             [] S1|S2 then {Append {GetFreeVars S1} {GetFreeVars S2}}
             else nil
             end
