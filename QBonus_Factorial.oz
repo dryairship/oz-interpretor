@@ -23,7 +23,7 @@ end
 %% statements that we have covered in the homework, except for
 %% the operators (-) and (*), and the Browse function.
 %% We implemented these using 3 more types of statements:
-%% - [pred ident(a) ident(b)] : Sets b = a-1
+%% - [add ident(a) ident(b) ident(c)] : Sets c = a+b
 %% - [multiply ident(a) ident(b) ident(c)] : Sets c = a*b
 %% - [print ident(x)] : Prints the value of x on screen
 
@@ -50,37 +50,40 @@ declare
 {ResetInterpretor}
 Test0 = 
 [var ident(factorial)
-    [
-        [bind ident(factorial)
-            [procedure [ident(x) ident(currentF)]
-                [
-                    [match ident(x) [record literal(num) [[literal(value) literal(0)]]]
-                        [print ident(currentF)]
-                        [
-                            [match ident(x) [record literal(num) [[literal(value) ident(y)]]]
-                                [
-                                    [var ident(decrement) 
-                                        [var ident(product)
-                                            [var ident(newRecord)
-                                                [
-                                                    [pred ident(y) ident(decrement)]
-                                                    [multiply ident(currentF) ident(y) ident(product)]
-                                                    [bind ident(newRecord) [record literal(num) [[literal(value) ident(decrement)]]]]
-                                                    [apply ident(factorial) ident(newRecord) ident(product)]
+    [var ident(minusOne)
+        [
+            [bind ident(minusOne) literal(~1)]
+            [bind ident(factorial)
+                [procedure [ident(x) ident(currentF)]
+                    [
+                        [match ident(x) [record literal(num) [[literal(value) literal(0)]]]
+                            [print ident(currentF)]
+                            [
+                                [match ident(x) [record literal(num) [[literal(value) ident(y)]]]
+                                    [
+                                        [var ident(decrement) 
+                                            [var ident(product)
+                                                [var ident(newRecord)
+                                                    [
+                                                        [add ident(y) ident(minusOne) ident(decrement)]
+                                                        [multiply ident(currentF) ident(y) ident(product)]
+                                                        [bind ident(newRecord) [record literal(num) [[literal(value) ident(decrement)]]]]
+                                                        [apply ident(factorial) ident(newRecord) ident(product)]
+                                                    ]
                                                 ]
                                             ]
                                         ]
                                     ]
+                                    [nop]
                                 ]
-                                [nop]
                             ]
                         ]
                     ]
                 ]
             ]
+            % Change the value of literal(6) on this line to any value literal(X) if you want to calculate the factorial of X.
+            [apply ident(factorial) [record literal(num) [[literal(value) literal(10)]]] literal(1)]
         ]
-        % Change the value of literal(6) on this line to any value literal(X) if you want to calculate the factorial of X.
-        [apply ident(factorial) [record literal(num) [[literal(value) literal(6)]]] literal(1)]
     ]
 ]
 {Interpret {GetAST Test0}}

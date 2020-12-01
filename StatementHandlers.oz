@@ -142,7 +142,7 @@ proc {BindProcedure X Params Statements E}
                 F | {Calc Params}
             [] print|ident(X)|nil then X | nil
             [] multiply|ident(A)|ident(B)|ident(C)|nil then A | B | C | nil
-            [] pred|ident(A)|ident(B)|nil then A | B | nil
+            [] add|ident(A)|ident(B)|ident(C)|nil then A | B | C | nil
             [] S1|S2 then {Append {GetFreeVars S1} {GetFreeVars S2}}
             else nil
             end
@@ -286,14 +286,14 @@ end
 
 declare
 %==================================================================
-% Handles the [pred ident(x) ident(y)] statement.
+% Handles the [add ident(x) ident(y) ident(z)] statement.
 % Parameters:
-% - A,B : variable identifiers. B will be equal to A-1.
+% - A,B,C : variable identifiers. C will be equal to A+B.
 % - E : environment in which this statement is executed
 %==================================================================
-proc {ExecutePred A B E}
-    case {RetrieveFromSAS E.A}
-    of literal(X) then {BindValueToKeyInSAS E.B literal(X-1)}
-    else raise cantPred(a:{RetrieveFromSAS E.A}) end
+proc {ExecuteAdd A B C E}
+    case {RetrieveFromSAS E.A}#{RetrieveFromSAS E.B}
+    of literal(X)#literal(Y) then {BindValueToKeyInSAS E.C literal(X+Y)}
+    else raise cantAdd(a:{RetrieveFromSAS E.A} b:{RetrieveFromSAS E.B}) end
     end
 end

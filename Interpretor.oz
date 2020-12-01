@@ -74,8 +74,8 @@ proc {Interpret AST}
                 [] [multiply ident(A) ident(B) ident(C)] then
                     {ExecuteMultiply A B C E}
                     {Interpret T1}
-                [] [pred ident(A) ident(B)] then
-                    {ExecutePred A B E}
+                [] [add ident(A) ident(B) ident(C)] then
+                    {ExecuteAdd A B C E}
                     {Interpret T1}
                 else
                     % The interpretor does not know how to handle this statement
