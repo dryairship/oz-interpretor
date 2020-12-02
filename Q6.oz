@@ -32,7 +32,6 @@ Test0 =  [var ident(x)
         ]
 {Interpret {GetAST Test0}}
 
-
 declare
 {ResetInterpretor}
 
@@ -51,7 +50,6 @@ Test1 = [var ident(x)
             ]
         ]
 {Interpret {GetAST Test1}}
-
 
 declare
 {ResetInterpretor}
@@ -80,7 +78,7 @@ Test2 = [var ident(x)
 {Interpret {GetAST Test2}}
 
 
-% This is supposed to fail
+% This is supposed to fail because more actual parameters are supplied.
 declare
 {ResetInterpretor}
 

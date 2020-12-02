@@ -53,7 +53,8 @@ Test2 = [
 {Interpret {GetAST Test2}}
 
 
-% This is supposed to fail
+% This is supposed to raise an exception because variables containing two
+% different records are being bound to each other.
 declare
 {ResetInterpretor}
 Test3 = [

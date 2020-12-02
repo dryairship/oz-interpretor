@@ -2,7 +2,6 @@
 
 declare
 {ResetInterpretor}
-
 Test0 =  [var ident(x)
                 [var ident(y)
                     [var ident(z)
@@ -29,7 +28,6 @@ Test0 =  [var ident(x)
 
 declare
 {ResetInterpretor}
-
 Test1 = [var ident(x)
             [
                 var ident(y)
@@ -48,7 +46,6 @@ Test1 = [var ident(x)
 
 declare
 {ResetInterpretor}
-
 Test2 = [var ident(x)
             [
                 var ident(y)
